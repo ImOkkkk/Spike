@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.liuwy.dao.StockOrderDao">
+
+
+    <delete id="initOrderBefore" parameterType="string">
+        DELETE
+        FROM STOCK_ORDER
+        WHERE sid=#{sid}
+    </delete>
+
+    <insert id="insertSelective" parameterType="com.liuwy.pojo.StockOrder">
+        INSERT INTO
+        stock_order
+        (id, sid, name, create_time)
+        VALUES (#{id}, #{sid}, #{name}, #{createTime})
+    </insert>
+</mapper>
