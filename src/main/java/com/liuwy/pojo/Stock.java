@@ -18,4 +18,6 @@ public class Stock {
     private Integer sale;
     @ApiModelProperty("商品版本")
     private Integer version;
+    @ApiModelProperty("商品代码")
+    private String code;
 }

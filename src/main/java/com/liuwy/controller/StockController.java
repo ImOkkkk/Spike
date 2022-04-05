@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.liuwy.annotation.AuthChecker;
 import com.liuwy.exception.SpikeException;
+import com.liuwy.pojo.Stock;
 import com.liuwy.service.AuthService;
 import com.liuwy.service.StockService;
 import com.liuwy.util.SpikeResponse;
@@ -54,10 +56,33 @@ public class StockController {
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "商品id"),
         @ApiImplicitParam(name = "count", value = "用于秒杀的数量")})
     @GetMapping("/initBefore")
-    @AuthChecker
+//    @AuthChecker
     public SpikeResponse initBefore(String id, Integer count) {
         stockService.initStockBefore(id, count);
         return SpikeResponse.success();
+    }
+
+    @ApiOperation("创建商品")
+    @PostMapping("/createStock")
+//    @AuthChecker
+    public SpikeResponse createStock(@RequestBody Stock stock){
+        stock = stockService.createStock(stock);
+        return SpikeResponse.successWithData(stock);
+    }
+
+    @ApiOperation("查询商品详情")
+    @GetMapping("/getStockByCode")
+//    @AuthChecker
+    public SpikeResponse getStockByCode(String code){
+        Stock stock = stockService.getStockByCode(code);
+        return SpikeResponse.successWithData(stock);
+    }
+
+    @ApiOperation("查询商品详情")
+    @GetMapping("/getStockById")
+    public SpikeResponse getStockById(String id){
+        Stock stock = stockService.getStockById(id);
+        return SpikeResponse.successWithData(stock);
     }
 
     @ApiOperation("通过乐观锁的方式秒杀")

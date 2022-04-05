@@ -42,9 +42,9 @@ public class AuthAspect {
         if (!redisService.isExist(token)) {
             throw new SpikeException("token不存在！");
         }
-        if (!redisService.remove(token)) {
+        /*if (!redisService.remove(token)) {
             throw new SpikeException("token清理失败！");
-        }
+        }*/
         try {
             return proceedingJoinPoint.proceed();
         } catch (Throwable throwable) {

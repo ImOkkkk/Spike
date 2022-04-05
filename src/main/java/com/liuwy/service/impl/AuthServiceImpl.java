@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
         UUID randomUUID = UUID.randomUUID();
         StringBuffer stringBuffer = new StringBuffer();
         String token = stringBuffer.append(SpikeConstant.AUTH_PRE).append(randomUUID).toString();
-        boolean result = redisService.setExp(token, token, 10000L);
+        boolean result = redisService.setExp(token, token, 120L);
         if (result){
             return token;
         }

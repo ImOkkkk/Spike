@@ -3,24 +3,39 @@
 <mapper namespace="com.liuwy.dao.StockDao">
 
     <select id="selectStockById" parameterType="string" resultType="com.liuwy.pojo.Stock">
-        SELECT
-        *
+        SELECT *
         FROM STOCK
-        WHERE id=#{id}
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectStockByCode" parameterType="string" resultType="com.liuwy.pojo.Stock">
+        SELECT *
+        FROM STOCK
+        WHERE code = #{code}
     </select>
 
 
     <update id="initStockBefore">
         UPDATE
-        STOCK
-        SET count = #{count}, sale=0, version=0
-        WHERE id=#{id}
+            STOCK
+        SET count  = #{count},
+            sale=0,
+            version=0
+        WHERE id = #{id}
     </update>
 
     <update id="updateByOptimistic" parameterType="com.liuwy.pojo.Stock">
         UPDATE
-        STOCK
-        SET count = count - 1, sale = sale + 1, version = version + 1
-        WHERE id = #{id} AND version = #{version}
+            STOCK
+        SET count   = count - 1,
+            sale    = sale + 1,
+            version = version + 1
+        WHERE id = #{id}
+          AND version = #{version}
+    </update>
+
+    <update id="createStock" parameterType="com.liuwy.pojo.Stock" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO STOCK(name, count, sale, version, code)
+        VALUES (#{name}, #{count}, #{sale}, #{version}, #{code})
     </update>
 </mapper>

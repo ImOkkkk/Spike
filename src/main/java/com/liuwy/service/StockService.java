@@ -53,4 +53,24 @@ public interface StockService {
     void saleByOptimisticLimitKafka(String id, Integer limit) throws SpikeException;
 
     void createOrderByKafka(Stock stock) throws SpikeException;
+
+    /**
+     * 创建商品
+     * @param stock
+     */
+    Stock createStock(Stock stock);
+
+    /**
+     * 根据商品code查询商品详情
+     * @param code
+     * @return
+     */
+    Stock getStockByCode(String code);
+
+    /**
+     * 根据商品id查询商品详情
+     * @param id
+     * @return
+     */
+    Stock getStockById(String id);
 }

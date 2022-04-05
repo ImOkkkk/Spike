@@ -16,7 +16,11 @@ public interface StockDao {
 
     Stock selectStockById(String id);
 
+    Stock selectStockByCode(String code);
+
     void initStockBefore(String id, Integer count);
 
     Integer updateByOptimistic(Stock stock);
+
+    void createStock(Stock stock);
 }

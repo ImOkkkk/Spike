@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.liuwy.annotation.DoubleCache;
 import com.liuwy.dao.StockDao;
 import com.liuwy.dao.StockOrderDao;
+import com.liuwy.enums.CacheType;
 import com.liuwy.exception.SpikeException;
 import com.liuwy.pojo.Stock;
 import com.liuwy.pojo.StockOrder;
@@ -139,6 +141,26 @@ public class StockServiceImpl implements StockService {
         } else {
             logger.info("Kafka 消费 Topic 创建订单失败");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DoubleCache(cacheName = "order", key = "#stock.id", TYPE = CacheType.ADD)
+    public Stock createStock(Stock stock) {
+        stockDao.createStock(stock);
+        return stock;
+    }
+
+    @Override
+    @DoubleCache(cacheName = "order", key = "#code", TYPE = CacheType.FULL)
+    public Stock getStockByCode(String code) {
+        return stockDao.selectStockByCode(code);
+    }
+
+    @Override
+    @DoubleCache(cacheName = "order", key = "#id", TYPE = CacheType.FULL)
+    public Stock getStockById(String id) {
+        return stockDao.selectStockById(id);
     }
 
     private void saleStockOptimsticWithRedis(Stock stock) throws SpikeException {
