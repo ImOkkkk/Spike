@@ -12,6 +12,8 @@ public class SpikeConstant {
 
     public final static String STOCK_SALE = "stock_sale_";
 
+    public final static String STOCK_LIMIT = "stock_limit_";
+
 
     public final static String STOCK_VERSION = "stock_version_";
 

@@ -24,9 +24,6 @@ public class UtilInit implements ApplicationRunner {
     @Autowired
     private MessageSource messageSource;
 
-    @Value("${spring.kafka.template.default-topic:SPIKE_TOPIC}")
-    private String kafkaTopic;
-
     @Override
     public void run(ApplicationArguments args) {
         LocaleMessageSourceUtil.messageSource = this.messageSource;

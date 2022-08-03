@@ -4,7 +4,7 @@ spring:
   messages:
     basename: i18n/messages
   datasource:
-    url: jdbc:mysql://localhost:3306/seconds_kill?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://127.0.0.1:3306/spike?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
     username: root
     password: 547717253
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -29,14 +29,11 @@ spring:
         max-idle: 8 #最大空闲连接数，默认8个
         max-wait: -1 #获取连接的最大等待时间，默认-1，表示无限制，单位毫秒 默认值可能会因为获取不到连接，导致事务无法提交，数据库被锁，大量线程处于等待状态的情况
         min-idle: 0 #最小空闲连接数，默认0
+    database: 2
   kafka:
-    bootstrap-servers: 47.94.238.10:9092
+    bootstrap-servers: 127.0.0.1:9092
     consumer:
       group-id: spike
-    template:
-      default-topic: SPIKE_TOPIC
-    listener:
-      concurrency: 5
 
 
 mybatis:
@@ -49,27 +46,3 @@ logging:
   level:
     root: INFO
     com.liuwy: DEBUG
-spike.common:
-  ##kafka配置
-  kafka:
-    broker.address: 10.100.1.65:9092
-    listener.pollTimeout: 10000 #单位ms
-    #生产者配置
-    producer:
-      #kafka最大请求字节数，单位字节
-      max_request_size: 33554432
-    consumer:
-      groupId: spike
-    records:
-      task:
-        size: 500
-  receive:
-    commitSize: 500
-
-  jms:
-    #消息队列kafka
-    type: kafka
-    #一次读取kafka的最大时间
-    consumer.wait: 200
-    #当发送或者消费的耗时大于该值时，打印日志
-    usetime: 300

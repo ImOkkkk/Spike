@@ -1,4 +1,4 @@
-package com.liuwy.adapter;
+package com.liuwy.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +13,8 @@ import com.liuwy.service.AuthService;
 import com.liuwy.util.LocaleMessageSourceUtil;
 
 /**
+ * 拦截器实现鉴权
+ *
  * @author:
  * @date: created in 17:02 2021/4/25
  * @version:

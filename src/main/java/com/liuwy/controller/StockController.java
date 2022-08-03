@@ -1,5 +1,6 @@
 package com.liuwy.controller;
 
+import com.liuwy.annotation.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.liuwy.exception.SpikeException;
@@ -47,7 +49,7 @@ public class StockController {
     @ApiOperation("预热Redis")
     @ApiImplicitParam(name = "id", value = "商品id")
     @GetMapping("/redisPreheat")
-    public SpikeResponse RedisPreheat(String id) {
+    public SpikeResponse RedisPreheat(@RequestParam(name = "id") String id) {
         stockService.redisPreheat(id);
         return SpikeResponse.success();
     }
@@ -85,54 +87,17 @@ public class StockController {
         return SpikeResponse.successWithData(stock);
     }
 
-    @ApiOperation("通过乐观锁的方式秒杀")
+    @ApiOperation("抢购商品，生成订单")
     @ApiImplicitParam(name = "id", value = "商品id")
-    @GetMapping("/saleByOptimistic")
-    public SpikeResponse saleByOptimistic(String id) {
+    @GetMapping("/sale")
+    @RateLimiter(key = "RATE_LIMIT:SALE", time = 1, count = 1000)
+    public SpikeResponse sale(@RequestParam(name = "id") String id) {
         try {
-            stockService.saleByOptimistic(id);
+            stockService.sale(id);
         } catch (SpikeException e) {
             logger.error("Exception: " + e.getMessage());
         }
         return SpikeResponse.success();
     }
 
-    @ApiOperation("通过乐观锁和Redis限流的方式秒杀")
-    @ApiImplicitParam(name = "id", value = "商品id")
-    @GetMapping("/saleByOptimisticLimit")
-    public SpikeResponse saleByOptimisticLimit(String id, Integer limit) {
-        try {
-            stockService.saleByOptimisticLimit(id, limit);
-        } catch (SpikeException e) {
-            logger.error("Exception: " + e.getMessage());
-        }
-        return SpikeResponse.success();
-    }
-
-    @ApiOperation("通过乐观锁和Redis校验库存的方式秒杀")
-    @ApiImplicitParam(name = "id", value = "商品id")
-    @GetMapping("/saleByOptimisticRedis")
-    public SpikeResponse saleByOptimisticRedis(String id) {
-        try {
-            stockService.saleByOptimisticRedis(id);
-        } catch (SpikeException e) {
-            logger.error("Exception: " + e.getMessage());
-        }
-        return SpikeResponse.success();
-    }
-
-    /*
-     *不保证库存正确，只是用来练习使用Kafka和多线程
-     */
-    @ApiOperation("通过乐观锁和Redis限流及Kafka的方式秒杀")
-    @ApiImplicitParam(name = "id", value = "商品id")
-    @GetMapping("/saleByOptimisticLimitKafka")
-    public SpikeResponse saleByOptimisticLimitKafka(String id, Integer limit) {
-        try {
-            stockService.saleByOptimisticLimitKafka(id, limit);
-        } catch (SpikeException e) {
-            logger.error("Exception: " + e.getMessage());
-        }
-        return SpikeResponse.success();
-    }
 }

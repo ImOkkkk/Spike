@@ -25,36 +25,6 @@ public interface StockService {
     void initStockBefore(String id, Integer count);
 
     /**
-     * 通过乐观锁和Redis限流的方式秒杀
-     * @param id  商品id
-     * @return
-     */
-    void saleByOptimistic(String id) throws SpikeException;
-
-    /**
-     * 通过乐观锁和Redis限流的方式秒杀
-     * @param id  商品id
-     * @return
-     */
-    void saleByOptimisticLimit(String id, Integer limit) throws SpikeException;
-
-    /**
-     * 通过乐观锁和Redis校验库存的方式秒杀
-     * @param id  商品id
-     * @return
-     */
-    void saleByOptimisticRedis(String id) throws SpikeException;
-
-    /**
-     * 通过乐观锁和Redis限流及Kafka的方式秒杀
-     * @param id  商品id
-     * @return
-     */
-    void saleByOptimisticLimitKafka(String id, Integer limit) throws SpikeException;
-
-    void createOrderByKafka(Stock stock) throws SpikeException;
-
-    /**
      * 创建商品
      * @param stock
      */
@@ -73,4 +43,10 @@ public interface StockService {
      * @return
      */
     Stock getStockById(String id);
+
+    /**
+     * 抢购商品，生成订单
+     * @param id
+     */
+    void sale(String id);
 }

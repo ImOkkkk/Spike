@@ -14,8 +14,6 @@ public class Stock {
     private String name;
     @ApiModelProperty("商品剩余数量")
     private Integer count;
-    @ApiModelProperty("商品已售数量")
-    private Integer sale;
     @ApiModelProperty("商品版本")
     private Integer version;
     @ApiModelProperty("商品代码")

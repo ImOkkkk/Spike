@@ -20,7 +20,6 @@ public interface StockDao {
 
     void initStockBefore(String id, Integer count);
 
-    Integer updateByOptimistic(Stock stock);
 
     void createStock(Stock stock);
 }

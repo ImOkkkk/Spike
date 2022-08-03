@@ -13,8 +13,6 @@ public class StockOrder {
     private Integer id;
     @ApiModelProperty("商品id")
     private Integer sid;
-    @ApiModelProperty("商品名称")
-    private String name;
     @ApiModelProperty("订单创建时间")
     private Date createTime;
 }

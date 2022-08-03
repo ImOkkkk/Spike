@@ -13,6 +13,6 @@
         INSERT INTO
         stock_order
         (id, sid, name, create_time)
-        VALUES (#{id}, #{sid}, #{name}, #{createTime})
+        VALUES (#{id}, #{sid}, #{createTime})
     </insert>
 </mapper>

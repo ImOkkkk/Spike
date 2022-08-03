@@ -7,16 +7,18 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.liuwy.exception.SpikeException;
-import com.liuwy.util.RedisService;
 
 import cn.hutool.core.util.StrUtil;
 
 /**
+ * AOP方式鉴权
+ *
  * @author:
  * @date: created in 9:34 2021/4/26
  * @version:
@@ -26,7 +28,7 @@ import cn.hutool.core.util.StrUtil;
 @Aspect
 public class AuthAspect {
     @Autowired
-    RedisService redisService;
+    private RedisTemplate redisTemplate;
 
     //定义一个 Pointcut, 使用切点表达式函数来描述对哪些Join point使用advice.
     @Pointcut("@annotation(com.liuwy.annotation.AuthChecker)")
@@ -39,7 +41,7 @@ public class AuthAspect {
     public Object checkAuth(ProceedingJoinPoint proceedingJoinPoint){
         HttpServletRequest servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = getToken(servletRequest);
-        if (!redisService.isExist(token)) {
+        if (!redisTemplate.hasKey(token)) {
             throw new SpikeException("token不存在！");
         }
         /*if (!redisService.remove(token)) {

@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 
 /**
  * @author:
@@ -42,5 +45,21 @@ public class SpikeConfiguration {
     @Bean
     public BlockingQueue<Object> orderSendQueue() {
         return new ArrayBlockingQueue<Object>(30000);
+    }
+
+    @Bean("rateLimiterScript")
+    public DefaultRedisScript<Long> rateLimiterScript(){
+        DefaultRedisScript<Long> rateLimiterScript = new DefaultRedisScript<>();
+        rateLimiterScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/rateLimiter.lua")));
+        rateLimiterScript.setResultType(Long.class);
+        return rateLimiterScript;
+    }
+
+    @Bean("deductStockScript")
+    public DefaultRedisScript<Long> deductStockScript(){
+        DefaultRedisScript<Long> rateLimiterScript = new DefaultRedisScript<>();
+        rateLimiterScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/deductStock.lua")));
+        rateLimiterScript.setResultType(Long.class);
+        return rateLimiterScript;
     }
 }

@@ -5,9 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
-import com.liuwy.adapter.AuthInterceptor;
+import com.liuwy.interceptor.AuthInterceptor;
 
 /**
+ * 拦截器实现鉴权
+ *
  * @author:
  * @date: created in 9:27 2021/4/26
  * @version:

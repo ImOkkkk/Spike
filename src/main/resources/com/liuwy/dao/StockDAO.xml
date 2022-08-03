@@ -24,18 +24,9 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateByOptimistic" parameterType="com.liuwy.pojo.Stock">
-        UPDATE
-            STOCK
-        SET count   = count - 1,
-            sale    = sale + 1,
-            version = version + 1
-        WHERE id = #{id}
-          AND version = #{version}
-    </update>
 
     <update id="createStock" parameterType="com.liuwy.pojo.Stock" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO STOCK(name, count, sale, version, code)
-        VALUES (#{name}, #{count}, #{sale}, #{version}, #{code})
+        VALUES (#{name}, #{count}, #{version}, #{code})
     </update>
 </mapper>

@@ -2,14 +2,15 @@ package com.liuwy.service.impl;
 
 import java.util.UUID;
 
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.liuwy.exception.SpikeException;
 import com.liuwy.service.AuthService;
-import com.liuwy.util.RedisService;
 import com.liuwy.util.SpikeConstant;
 
 import cn.hutool.core.util.StrUtil;
@@ -23,17 +24,14 @@ import cn.hutool.core.util.StrUtil;
 @Service
 public class AuthServiceImpl implements AuthService {
     @Autowired
-    RedisService redisService;
+    private RedisTemplate redisTemplate;
     @Override
     public String createToken() {
         UUID randomUUID = UUID.randomUUID();
         StringBuffer stringBuffer = new StringBuffer();
         String token = stringBuffer.append(SpikeConstant.AUTH_PRE).append(randomUUID).toString();
-        boolean result = redisService.setExp(token, token, 120L);
-        if (result){
-            return token;
-        }
-        return null;
+        redisTemplate.opsForValue().set(token, token, 600, TimeUnit.SECONDS);
+        return token;
     }
 
     @Override
@@ -45,10 +43,10 @@ public class AuthServiceImpl implements AuthService {
                 throw new SpikeException("请求违法！");
             }
         }
-        if (!redisService.isExist(token)) {
+        if (!redisTemplate.hasKey(token)) {
             throw new SpikeException("token不存在！");
         }
-        if (!redisService.remove(token)) {
+        if (!redisTemplate.hasKey(token)) {
             throw new SpikeException("token清理失败！");
         }
         return true;
