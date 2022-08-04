@@ -17,5 +17,5 @@ public class SpikeConstant {
 
     public final static String STOCK_VERSION = "stock_version_";
 
-    public final static String AUTH_PRE = "AUTH_PRE_";
+    public final static String USER_TOKEN_KEY = "SPIKE:userToken:%s";
 }

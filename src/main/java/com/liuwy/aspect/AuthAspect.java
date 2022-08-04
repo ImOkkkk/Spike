@@ -1,7 +1,12 @@
 package com.liuwy.aspect;
 
+import cn.hutool.core.util.StrUtil;
+import com.liuwy.context.WebContext;
+import com.liuwy.exception.SpikeException;
+import com.liuwy.util.JwtTokenUtil;
+import com.liuwy.util.SpikeConstant;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,10 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.liuwy.exception.SpikeException;
-
-import cn.hutool.core.util.StrUtil;
-
 /**
  * AOP方式鉴权
  *
@@ -24,45 +25,65 @@ import cn.hutool.core.util.StrUtil;
  * @version:
  */
 
-@Component
-@Aspect
+//放开注释使用切面校验权限
+//@Component
+//@Aspect
 public class AuthAspect {
-    @Autowired
-    private RedisTemplate redisTemplate;
 
-    //定义一个 Pointcut, 使用切点表达式函数来描述对哪些Join point使用advice.
-    @Pointcut("@annotation(com.liuwy.annotation.AuthChecker)")
-    public void AuthPointCut(){
+  @Autowired
+  private RedisTemplate redisTemplate;
 
+  //定义一个 Pointcut, 使用切点表达式函数来描述对哪些Join point使用advice.
+  @Pointcut("@annotation(com.liuwy.annotation.AuthChecker)")
+  public void AuthPointCut() {
+
+  }
+
+  //定义advice
+  @Around("AuthPointCut()")
+  public Object checkAuth(ProceedingJoinPoint proceedingJoinPoint) {
+    HttpServletRequest servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    if (!authenticated(servletRequest)) {
+      clearThreadContext();
+      throw new SpikeException("用户未登录");
     }
-
-    //定义advice
-    @Around("AuthPointCut()")
-    public Object checkAuth(ProceedingJoinPoint proceedingJoinPoint){
-        HttpServletRequest servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String token = getToken(servletRequest);
-        if (!redisTemplate.hasKey(token)) {
-            throw new SpikeException("token不存在！");
-        }
-        /*if (!redisService.remove(token)) {
-            throw new SpikeException("token清理失败！");
-        }*/
-        try {
-            return proceedingJoinPoint.proceed();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            return null;
-        }
+    try {
+      return proceedingJoinPoint.proceed();
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+      return null;
     }
+  }
 
-    public String getToken(HttpServletRequest servletRequest){
-        String token = servletRequest.getHeader("token");
-        if (StrUtil.isBlank(token)) {
-            token = servletRequest.getParameter("token");
-            if (StrUtil.isBlank(token)) {
-                throw new SpikeException("请求违法！");
-            }
-        }
-        return token;
+  public Boolean authenticated(HttpServletRequest servletRequest) {
+    String token = servletRequest.getHeader("Authorization");
+    if (StrUtil.isEmpty(token)) {
+      throw new SpikeException("登录已过期，请重新登录！");
     }
+    JwtTokenUtil.parseTokenInfo(token);
+    return checkToken(token);
+  }
+
+  private boolean checkToken(String token) {
+    if (WebContext.getIsExpired()) {
+      return false;
+    }
+    if (WebContext.getCurrentUser() == null) {
+      return false;
+    }
+    Object res = redisTemplate.opsForValue()
+        .get(String.format(SpikeConstant.USER_TOKEN_KEY, WebContext.getCurrentUser()));
+    if (Objects.isNull(res)) {
+      return false;
+    }
+    if (!StrUtil.equals((String) res, token)) {
+      return false;
+    }
+    return true;
+  }
+
+  private void clearThreadContext() {
+    WebContext.removeCurrentUser();
+    WebContext.removeIsExpired();
+  }
 }

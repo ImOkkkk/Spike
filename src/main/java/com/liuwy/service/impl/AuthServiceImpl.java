@@ -1,19 +1,14 @@
 package com.liuwy.service.impl;
 
-import java.util.UUID;
-
+import com.liuwy.context.WebContext;
+import com.liuwy.service.AuthService;
+import com.liuwy.util.JwtTokenUtil;
+import com.liuwy.util.SpikeConstant;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import com.liuwy.exception.SpikeException;
-import com.liuwy.service.AuthService;
-import com.liuwy.util.SpikeConstant;
-
-import cn.hutool.core.util.StrUtil;
 
 /**
  * @author:
@@ -25,30 +20,26 @@ import cn.hutool.core.util.StrUtil;
 public class AuthServiceImpl implements AuthService {
     @Autowired
     private RedisTemplate redisTemplate;
+
     @Override
     public String createToken() {
-        UUID randomUUID = UUID.randomUUID();
-        StringBuffer stringBuffer = new StringBuffer();
-        String token = stringBuffer.append(SpikeConstant.AUTH_PRE).append(randomUUID).toString();
-        redisTemplate.opsForValue().set(token, token, 600, TimeUnit.SECONDS);
+        String token = cacheToken("userid1", "username1");
+        WebContext.setCurrentUser("userid1");
         return token;
     }
 
-    @Override
-    public boolean checkToken(HttpServletRequest request) throws Exception {
-        String token = request.getHeader("token");
-        if (StrUtil.isBlank(token)) {
-            token = request.getParameter("token");
-            if (StrUtil.isBlank(token)) {
-                throw new SpikeException("请求违法！");
-            }
+
+    private String cacheToken(String userId, String userName) {
+        String key = String.format(SpikeConstant.USER_TOKEN_KEY, userId);
+        String res = null;
+        Object r = redisTemplate.opsForValue().get(key);
+        if (Objects.nonNull(r)) {
+            res = (String) r;
+            redisTemplate.boundValueOps(key).set(r, TimeUnit.DAYS.toSeconds(7), TimeUnit.SECONDS);
+        } else {
+            res = JwtTokenUtil.generateToken(userId, userName);
+            redisTemplate.boundValueOps(key).set(res, TimeUnit.DAYS.toSeconds(7), TimeUnit.SECONDS);
         }
-        if (!redisTemplate.hasKey(token)) {
-            throw new SpikeException("token不存在！");
-        }
-        if (!redisTemplate.hasKey(token)) {
-            throw new SpikeException("token清理失败！");
-        }
-        return true;
+        return res;
     }
 }

@@ -1,11 +1,10 @@
 package com.liuwy.config;
 
+import com.liuwy.interceptor.TokenInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-
-import com.liuwy.interceptor.AuthInterceptor;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * 拦截器实现鉴权
@@ -15,16 +14,23 @@ import com.liuwy.interceptor.AuthInterceptor;
  * @version:
  */
 @Configuration
-public class WebConfiguration extends WebMvcConfigurationSupport {
-    //构造器注入
-    @Bean
-    public AuthInterceptor authInterceptor(){
-        return new AuthInterceptor();
-    }
+public class WebConfiguration implements WebMvcConfigurer {
 
-    @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(authInterceptor());
-        super.addInterceptors(registry);
-    }
+  /**
+   * 直接放行路径
+   */
+  private final String[] EXCLUDE_PATHS = {
+      "/stock/createToken"
+  };
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(tokenInterceptor()).addPathPatterns("/**")
+        .excludePathPatterns(EXCLUDE_PATHS);
+  }
+
+  @Bean
+  public TokenInterceptor tokenInterceptor() {
+    return new TokenInterceptor();
+  }
 }

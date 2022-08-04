@@ -1,5 +1,6 @@
 package com.liuwy.controller;
 
+import com.liuwy.annotation.AuthChecker;
 import com.liuwy.annotation.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class StockController {
     @ApiOperation("预热Redis")
     @ApiImplicitParam(name = "id", value = "商品id")
     @GetMapping("/redisPreheat")
+    @AuthChecker
     public SpikeResponse RedisPreheat(@RequestParam(name = "id") String id) {
         stockService.redisPreheat(id);
         return SpikeResponse.success();
